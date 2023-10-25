@@ -1,26 +1,16 @@
-import java.util.concurrent.ArrayBlockingQueue;
+
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Banco {
-    private BlockingQueue<Cliente> filaNormal = new ArrayBlockingQueue<>(50);
-    private BlockingQueue<Cliente> filaPreferencial = new ArrayBlockingQueue<>(50);
+    public BlockingQueue<String> filaNormal = new LinkedBlockingQueue<>();
+    public BlockingQueue<String> filaPreferencial = new LinkedBlockingQueue<>();
 
-    public void agregarClienteNormal(Cliente cliente) throws InterruptedException {
-        filaNormal.put(cliente);
-    }
+    public void agregarClienteNormal(String cliente){filaNormal.add(cliente);}
 
-    public void agregarClientePreferencial(Cliente cliente) throws InterruptedException {
-        filaPreferencial.put(cliente);
-    }
+    public void agregarClientePreferencial(String cliente){filaPreferencial.add(cliente);}
 
-    public Cliente siguienteCliente() throws InterruptedException {
-        Cliente cliente = filaPreferencial.poll();
-        if (cliente == null) {
-            cliente = filaNormal.poll();
-        }
-        return cliente;
-    }
-    public boolean hayClientes() {
-        return !filaNormal.isEmpty() || !filaPreferencial.isEmpty();
-    }
+   public BlockingQueue<String> getFilaPreferencial(){
+        return filaPreferencial;
+   }
 }

@@ -1,24 +1,50 @@
 public class Main {
     public static void main(String[] args) {
         Banco banco = new Banco();
-        Thread cajeroThread = new Thread(new Cajero(banco));
-        cajeroThread.start();
-
-        // Simulación de clientes llegando al banco
-        for (int i = 1; i <= 10; i++) {
-            Cliente cliente = new Cliente("Cliente " + i);
-            try {
-                if (i % 3 == 0) {
-                    banco.agregarClientePreferencial(cliente);
-                } else {
-                    banco.agregarClienteNormal(cliente);
+        Thread priority = new Thread(() -> {
+            while (true) {
+                String usuario = null;
+                try {
+                    usuario = banco.getFilaPreferencial().take();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-                System.out.println(cliente.getNombre() + " llegó al banco.");
-                Thread.sleep(1000); // Simula el tiempo entre llegada de clientes
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.out.println("Cliente prioritario en proceso: " + usuario);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
             }
-        }
+        });
+        Thread ordinario = new Thread(() ->{
+            while (true){
+                if (banco.getFilaPreferencial().isEmpty()){
+                    String usuario = null;
+                    try {
+                        usuario = banco.filaNormal.take();
+                    } catch (InterruptedException e){
+                        throw new RuntimeException(e);
+                    }
+                    System.out.println("Cliente normal en proceso:" + usuario);
+                    try {
+                        Thread.sleep(1000);
+
+                    } catch (InterruptedException e){}
+                }
+            }
+        });
+        priority.start();
+        ordinario.start();
+        banco.agregarClienteNormal("Diego");
+        banco.agregarClienteNormal("Isabella");
+        banco.agregarClientePreferencial("Ana");
+        banco.agregarClientePreferencial("Saavedra");
+        banco.agregarClientePreferencial("Jeyson");
     }
 }
+
+
+
+
+
 
